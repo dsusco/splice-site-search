@@ -2,6 +2,24 @@
 
 module.exports = function (grunt) {
   grunt.initConfig({
+    connect: {
+      docs: {
+        options: {
+          base: 'docs/',
+          livereload: true,
+          open: true,
+          port: 3000
+        }
+      }
+    },
+    docco: {
+      lib: {
+        src: ['index.js', 'lib/**/*.js'],
+        options: {
+          output: 'docs/'
+        }
+      }
+    },
     jshint: {
       options: {
         curly: true,
@@ -22,6 +40,16 @@ module.exports = function (grunt) {
       }
     },
     watch: {
+      docco: {
+        files: ['<%= docco.lib.src %>'],
+        tasks: ['docco']
+      },
+      docs: {
+        files: ['docs/**/*'],
+        options: {
+          livereload: true
+        }
+      },
       gruntfile: {
         files: ['<%= jshint.gruntfile.src %>'],
         tasks: ['jshint:gruntfile']
@@ -33,8 +61,11 @@ module.exports = function (grunt) {
     }
   });
 
+  grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-docco');
 
   grunt.registerTask('default', ['jshint']);
+  grunt.registerTask('docs', ['connect', 'watch']);
 };
