@@ -29,13 +29,7 @@ command.args.forEach(function (file) {
                   sites.forEach(function (site) {
                     site.position = +site.position;
 
-                    /*
-                    getSequence(
-                      { position: command.position,
-                        transcript: command.transcript },
-                      getSequenceCallback
-                    );
-                    */
+                    // getSequence(site, getSequenceCallback);
                   });
                 }
               )
