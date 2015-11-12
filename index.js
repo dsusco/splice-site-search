@@ -3,8 +3,3 @@
 
 var
   command = require('./lib/command');
-
-if (command.valid) {
-} else {
-  command.help();
-}
