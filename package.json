@@ -9,9 +9,11 @@
   },
   "author": "David Susco <dsusco@gmail.com> (https://github.com/dsusco)",
   "dependencies": {
+    "cheerio": "^0.19.0",
     "commander": "^2.9.0",
     "csv-parse": "^1.0.0",
-    "handlebars": "^4.0.4"
+    "handlebars": "^4.0.4",
+    "request": "^2.65.0"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

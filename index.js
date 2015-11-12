@@ -10,6 +10,11 @@ var
 command.args.forEach(function forEachFile(file) {
   var fileReadStream = fs.createReadStream(file);
 
+  function getSequenceCallback(error, site) {
+    console.log(error);
+    console.log(site.file);
+  }
+
   fileReadStream
     .on('readable', function onReadFile() {
       if (command.sites) {
@@ -28,9 +33,10 @@ command.args.forEach(function forEachFile(file) {
                   }
 
                   sites.forEach(function forEachSite(site) {
+                    site.file = file;
                     site.position = +site.position;
 
-                    // getSequence(site, getSequenceCallback);
+                    getSequence(site, getSequenceCallback);
                   });
                 }
               )
@@ -41,13 +47,11 @@ command.args.forEach(function forEachFile(file) {
             process.exit(1);
           });
       } else {
-        /*
         getSequence(
           { position: command.position,
             transcript: command.transcript },
           getSequenceCallback
         );
-        */
       }
     })
     .on('error', function onReadFileError(error) {
