@@ -95,7 +95,7 @@
             
             <div class="content"><div class='highlight'><pre>command
   .version(pkg.version)
-  .arguments(<span class="hljs-string">'&lt;file...&gt;'</span>)
+  .arguments(<span class="hljs-string">'&lt;files...&gt;'</span>)
   .option(<span class="hljs-string">'-t, --transcript &lt;transcript&gt;'</span>, <span class="hljs-string">'single transcript'</span>)
   .option(<span class="hljs-string">'-p, --position &lt;integer&gt;'</span>, <span class="hljs-string">'position of single transcript'</span>,
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">positionOption</span>(<span class="hljs-params">val</span>) </span>{
@@ -137,11 +137,11 @@
   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Search the file(s) for a given transcript at its position.'</span>);
   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
-  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    $ %s [options] -t &lt;transcript&gt; -p &lt;integer&gt; &lt;file...&gt;'</span>, pkg.name);
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    $ %s [options] -t &lt;transcript&gt; -p &lt;integer&gt; &lt;files...&gt;'</span>, pkg.name);
   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Search the file(s) for each of the transcripts and their respective positions in a delimited potential splice sites file.'</span>);
   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
-  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    $ %s [options] -s &lt;file&gt; &lt;file...&gt;'</span>, pkg.name);
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    $ %s [options] -s &lt;file&gt; &lt;files...&gt;'</span>, pkg.name);
   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
 });
 
