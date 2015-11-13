@@ -2,13 +2,13 @@
 'use strict';
 
 var
-  command = require('./command'),
+  command = require('./lib/command'),
   fs = require('fs'),
-  getSequence = require('./get-sequence'),
+  getSequence = require('./lib/get-sequence'),
   moment = require('moment'),
   parse = require('csv-parse'),
   readline = require('readline'),
-  readsWriter = require('./reads-writer');
+  readsWriter = require('./lib/reads-writer');
 
 // For each file given as an argument...
 command.args.forEach(function forEachFile(file) {
