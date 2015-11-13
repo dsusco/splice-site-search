@@ -14,10 +14,10 @@ module.exports = function (grunt) {
     },
     docco: {
       lib: {
-        src: ['index.js', 'lib/**/*.js'],
         options: {
           output: 'docs/'
-        }
+        },
+        src: ['index.js', 'lib/**/*.js']
       }
     },
     jshint: {
@@ -67,5 +67,5 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-docco');
 
   grunt.registerTask('default', ['jshint']);
-  grunt.registerTask('docs', ['connect', 'watch']);
+  grunt.registerTask('docs', ['docco', 'connect', 'watch']);
 };

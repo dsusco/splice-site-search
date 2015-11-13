@@ -10,9 +10,11 @@ var
   readline = require('readline'),
   readsWriter = require('./lib/reads-writer');
 
+// For each file given as an argument...
 command.args.forEach(function forEachFile(file) {
   var fileReadStream = fs.createReadStream(file);
 
+  // search it for the sequence found for the transcript at the given position.
   function getSequenceCallback(error, site) {
     if (error) {
       console.log('Error: could not get sequence for transcript %j.', site.transcript);
@@ -20,6 +22,7 @@ command.args.forEach(function forEachFile(file) {
       readline
         .createInterface({ input: fileReadStream  })
         .on('line', function onReadFileLine(line) {
+          // If the sequence is found in the file, write it to a matching file.
           if (line.indexOf(site.sequence) > -1) {
             readsWriter.emit('line', site, line);
           }
@@ -30,6 +33,7 @@ command.args.forEach(function forEachFile(file) {
   fileReadStream
     .on('readable', function onReadFile() {
       if (command.sites) {
+        // If the `--sites` options is used, parse the provided potential splice sites file with the `--site-delimiter`. Get the sequence found for the transcript at the given position for each row.
         var sitesReadStream = fs.createReadStream(command.sites);
 
         sitesReadStream
@@ -60,6 +64,7 @@ command.args.forEach(function forEachFile(file) {
             process.exit(1);
           });
       } else {
+        // If the `--transcript` and `--position` options are used, get the sequence for those and search each file for it.
         getSequence(
           { date: moment().format('YYYYMMDDHHmmss'),
             file: file,
