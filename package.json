@@ -6,8 +6,8 @@
   "bugs": "https://github.com/dsusco/splice-site-search/issues",
   "license": "ISC",
   "author": "David Susco <dsusco@gmail.com> (https://github.com/dsusco)",
-  "main": "./index.js",
-  "bin": "./index.js",
+  "main": "lib/splice-site-search.js",
+  "bin": "lib/splice-site-search.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/dsusco/splice-site-search.git"
