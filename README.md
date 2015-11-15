@@ -14,7 +14,7 @@ Next, install the module globally with:
 
     $ npm install -g splice-site-search/
 
-If you run into problems here you might need to run the command with `sudo`. If you don't have sudo access you either install Node.js yourself, place its `bin` directory somewhere in your path, or use the program with `node splice-site-search/index.js` instead.
+If you run into problems here you might need to run the command with `sudo`. If you don't have sudo access you either install Node.js yourself (placing its `bin` directory somewhere in your path) or use the program with `node splice-site-search/index.js` instead.
 
 To confirm that the program is working, run the following to display the help information:
 
