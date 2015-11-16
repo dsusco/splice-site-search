@@ -103,13 +103,11 @@
             </div>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">exportFastaCallback</span>(<span class="hljs-params">error, response, body</span>) </span>{
-    <span class="hljs-keyword">if</span> (error || response.statusCode !== <span class="hljs-number">200</span>) {
-      callback(error, <span class="hljs-literal">null</span>);
+    <span class="hljs-keyword">if</span> (error) {
+      callback(error);
     } <span class="hljs-keyword">else</span> {
-      <span class="hljs-keyword">var</span> fasta = <span class="hljs-keyword">new</span> Fasta(body);
-
-      site.fasta = fasta;
-      site.sequence = fasta.body.slice(
+      site.fasta = <span class="hljs-keyword">new</span> Fasta(body);
+      site.sequence = site.fasta.body.slice(
         site.position + command.positionOffset,
         site.position + command.positionOffset + command.sequenceLength
       );
@@ -127,12 +125,12 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>Get the <code>g</code>, <code>r</code> and <code>t</code> values from the transcript’s Ensembl summary HTML (see below) and add them to the <code>site</code> object. These are used to generate the FASTA file URL, which is derived by passing in the <code>site</code> object to a Handelbars template.</p>
+              <p>Get the <code>g</code>, <code>r</code> and <code>t</code> values from the transcript’s Ensembl summary HTML (see below) and add them to the <code>site</code> object. These are used to generate the FASTA file URL, which is derived by passing in the <code>site</code> object to a Handelbars template. Also, determine if the transcript is on the forward or reverse strand, setting the <code>site.direction</code> value as appropriate. If any of these values cannot be set, callback with an error.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">transcriptSummaryCallback</span>(<span class="hljs-params">error, response, body</span>) </span>{
-    <span class="hljs-keyword">if</span> (error || response.statusCode !== <span class="hljs-number">200</span>) {
+    <span class="hljs-keyword">if</span> (error) {
       callback(error, <span class="hljs-literal">null</span>);
     } <span class="hljs-keyword">else</span> {
       <span class="hljs-keyword">var</span> $ = cheerio.load(body);
@@ -141,11 +139,19 @@
       site.r = $(<span class="hljs-string">'#core_params input[name=r]'</span>).val();
       site.t = $(<span class="hljs-string">'#core_params input[name=t]'</span>).val();
 
-<span class="hljs-built_in">console</span>.log($(<span class="hljs-string">'#main .rhs'</span>).length);
+      <span class="hljs-keyword">if</span> ($(<span class="hljs-string">'#main .rhs:contains("forward strand")'</span>).length) {
+        site.direction = <span class="hljs-string">'f'</span>;
+      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ($(<span class="hljs-string">'#main .rhs:contains("reverse strand")'</span>).length) {
+        site.direction = <span class="hljs-string">'r'</span>;
+      }
 
-process.exit(<span class="hljs-number">1</span>);
-
-      request(templates.export_fasta_url(site), exportFastaCallback);
+      <span class="hljs-keyword">if</span> (site.g === <span class="hljs-literal">undefined</span> || site.r === <span class="hljs-literal">undefined</span> || site.t === <span class="hljs-literal">undefined</span>) {
+        callback(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Could not determine the FASTA URL from "'</span> + templates.transcript_summary_url(site) + <span class="hljs-string">'".'</span>));
+      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (site.direction === <span class="hljs-literal">undefined</span>) {
+        callback(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Could not determine the strand direction from "'</span> + templates.transcript_summary_url(site) + <span class="hljs-string">'".'</span>));
+      } <span class="hljs-keyword">else</span> {
+        request(templates.export_fasta_url(site), exportFastaCallback);
+      }
     }
   }</pre></div></div>
             

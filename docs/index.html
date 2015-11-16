@@ -83,10 +83,10 @@
 
 var
   command = require('./lib/command'),
-  extend = require('node-extend'),
   fs = require('fs'),
   getSequence = require('./lib/get-sequence'),
   parse = require('csv-parse'),
+  path = require('path'),
   readline = require('readline'),
   readsWriter = require('./lib/reads-writer'),
   Site = require('./lib/site');</pre></div></div>
@@ -100,12 +100,35 @@ var
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>For each file given as an argument…</p>
+              <p>Search each sequence data file for each sequence. If it’s found, write the it was found on to a matching reads file.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>command.args.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">forEachFile</span>(<span class="hljs-params">file</span>) </span>{
-  <span class="hljs-keyword">var</span> fileReadStream = fs.createReadStream(file);</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getSequenceCallback</span>(<span class="hljs-params">error, site</span>) </span>{
+  <span class="hljs-keyword">if</span> (error) {
+    <span class="hljs-built_in">console</span>.log(error);
+  } <span class="hljs-keyword">else</span> {
+    command.args.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">forEachFile</span>(<span class="hljs-params">file</span>) </span>{
+      <span class="hljs-keyword">var</span> fileReadStream = fs.createReadStream(file);
+
+      site.file = path.basename(file);
+
+      fileReadStream
+        .on(<span class="hljs-string">'readable'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">onReadFile</span>(<span class="hljs-params"></span>) </span>{
+          readline
+            .createInterface({ input: fileReadStream  })
+            .on(<span class="hljs-string">'line'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">onReadFileLine</span>(<span class="hljs-params">line</span>) </span>{
+              <span class="hljs-keyword">if</span> (line.indexOf(site.sequence) &gt; -<span class="hljs-number">1</span>) {
+                readsWriter.emit(<span class="hljs-string">'line'</span>, site, line);
+              }
+            });
+        })
+        .on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">onReadFileError</span>(<span class="hljs-params">error</span>) </span>{
+          <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Error: could not read file %j.'</span>, error.path);
+        });
+    });
+  }
+}</pre></div></div>
             
         </li>
         
@@ -116,17 +139,35 @@ var
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>search it for the sequence found for each transcript at its given position.</p>
+              <p>If the <code>--sites</code> option is used, parse the potential splice sites file with the delimiter. Each row should contain a transcript and position, get the sequence for each transcript at the respective position.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getSequenceCallback</span>(<span class="hljs-params">error, site</span>) </span>{
-    <span class="hljs-keyword">if</span> (error) {
-      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Error: could not get sequence for transcript %j.'</span>, site.transcript);
-    } <span class="hljs-keyword">else</span> {
-      readline
-        .createInterface({ input: fileReadStream  })
-        .on(<span class="hljs-string">'line'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">onReadFileLine</span>(<span class="hljs-params">line</span>) </span>{</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> (command.sites) {
+  <span class="hljs-keyword">var</span> sitesReadStream = fs.createReadStream(command.sites);
+
+  sitesReadStream
+    .on(<span class="hljs-string">'readable'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">onReadSites</span>(<span class="hljs-params"></span>) </span>{
+      sitesReadStream.pipe(
+        parse(
+          { columns: <span class="hljs-literal">true</span>,
+            delimiter: command.siteDelimiter },
+          <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">parseSites</span>(<span class="hljs-params">error, sites</span>) </span>{
+            <span class="hljs-keyword">if</span> (error) {
+              <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Error: could not parse file %j.'</span>, command.sites);
+            } <span class="hljs-keyword">else</span> {
+              sites.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">forEachSite</span>(<span class="hljs-params">site</span>) </span>{
+                getSequence(site, getSequenceCallback);
+              });
+            }
+          }
+        )
+      );
+    })
+    .on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">onReadSitesError</span>(<span class="hljs-params">error</span>) </span>{
+      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Error: could not read file %j.'</span>, error.path);
+    });
+} <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -137,90 +178,18 @@ var
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>If the sequence is found in the file, write it to a matching file.</p>
+              <p>If the <code>--transcript</code> and <code>--position</code> options are used, get the sequence for the transcript at the given position.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>          <span class="hljs-keyword">if</span> (line.indexOf(site.sequence) &gt; -<span class="hljs-number">1</span>) {
-            readsWriter.emit(<span class="hljs-string">'line'</span>, site, line);
-          }
-        });
-    }
-  }
-
-  fileReadStream
-    .on(<span class="hljs-string">'readable'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">onReadFile</span>(<span class="hljs-params"></span>) </span>{
-      <span class="hljs-keyword">if</span> (command.sites) {</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-5">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
-              </div>
-              <p>If the <code>--sites</code> options is used, parse the provided potential splice sites file with the <code>--site-delimiter</code>. Get the sequence found for the transcript at the given position for each row.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> sitesReadStream = fs.createReadStream(command.sites);
-
-        sitesReadStream
-          .on(<span class="hljs-string">'readable'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">onReadSites</span>(<span class="hljs-params"></span>) </span>{
-            sitesReadStream.pipe(
-              parse(
-                { columns: <span class="hljs-literal">true</span>,
-                  delimiter: command.siteDelimiter },
-                <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">parseSites</span>(<span class="hljs-params">error, sites</span>) </span>{
-                  <span class="hljs-keyword">if</span> (error) {
-                    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Error: could not parse file %j.'</span>, command.sites);
-                    process.exit(<span class="hljs-number">1</span>);
-                  }
-
-                  sites.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">forEachSite</span>(<span class="hljs-params">site</span>) </span>{
-                    site = <span class="hljs-keyword">new</span> Site(extend({}, { file: file }, site));
-
-                    getSequence(site, getSequenceCallback);
-                  });
-                }
-              )
-            );
-          })
-          .on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">onReadSitesError</span>(<span class="hljs-params">error</span>) </span>{
-            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Error: could not read file %j.'</span>, error.path);
-            process.exit(<span class="hljs-number">1</span>);
-          });
-      } <span class="hljs-keyword">else</span> {</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-6">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-6">&#182;</a>
-              </div>
-              <p>If the <code>--transcript</code> and <code>--position</code> options are used, get the sequence for those and search each file for it.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>        getSequence(
-          <span class="hljs-keyword">new</span> Site(
-            { file: file,
-              position: command.position,
-              transcript: command.transcript },
-            getSequenceCallback
-          )
-        );
-      }
-    })
-    .on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">onReadFileError</span>(<span class="hljs-params">error</span>) </span>{
-      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Error: could not read file %j.'</span>, error.path);
-    });
-});</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  getSequence(
+    <span class="hljs-keyword">new</span> Site(
+      { position: command.position,
+        transcript: command.transcript }
+    ),
+    getSequenceCallback
+  );
+}</pre></div></div>
             
         </li>
         

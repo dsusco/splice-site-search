@@ -97,7 +97,7 @@
   string = string.trim().split(<span class="hljs-regexp">/[\n\r]+/</span>);
 
   <span class="hljs-keyword">this</span>.header = string.shift();
-  <span class="hljs-keyword">this</span>.body = string.join(<span class="hljs-string">''</span>);
+  <span class="hljs-keyword">this</span>.body = string.join(<span class="hljs-string">''</span>).replace(<span class="hljs-regexp">/&gt;.*/</span>, <span class="hljs-string">''</span>);
 }
 
 <span class="hljs-built_in">module</span>.exports = Fasta;</pre></div></div>
