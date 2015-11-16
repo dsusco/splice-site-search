@@ -106,15 +106,9 @@
     <span class="hljs-keyword">if</span> (error) {
       callback(error);
     } <span class="hljs-keyword">else</span> {
-      site.fasta = <span class="hljs-keyword">new</span> Fasta(body);
-      site.sequence = site.fasta.body.slice(
-        site.position + command.positionOffset,
-        site.position + command.positionOffset + command.sequenceLength
-      );
-
-      callback(<span class="hljs-literal">null</span>, site);
-    }
-  }</pre></div></div>
+      <span class="hljs-keyword">var</span>
+        sequenceStart = site.position + command.positionOffset,
+        sequenceEnd = sequenceStart + command.sequenceLength;</pre></div></div>
             
         </li>
         
@@ -125,7 +119,61 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>Get the <code>g</code>, <code>r</code> and <code>t</code> values from the transcript’s Ensembl summary HTML (see below) and add them to the <code>site</code> object. These are used to generate the FASTA file URL, which is derived by passing in the <code>site</code> object to a Handelbars template. Also, determine if the transcript is on the forward or reverse strand, setting the <code>site.direction</code> value as appropriate. If any of these values cannot be set, callback with an error.</p>
+              <p>If searching on the reverse strand, count backwards rather than forwards from the position.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (site.direction === <span class="hljs-string">'r'</span>) {
+        sequenceEnd = site.position - command.positionOffset;
+        sequenceStart = sequenceEnd - command.sequenceLength;
+      }
+
+      <span class="hljs-keyword">if</span> (sequenceStart &lt; <span class="hljs-number">0</span>) { sequenceStart = <span class="hljs-number">0</span>; }
+
+      <span class="hljs-keyword">if</span> (sequenceStart &gt;= sequenceEnd) {
+        callback(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Cannot determine a sequence with a negative length. Check the position, position offset and sequence length options.'</span>));
+      } <span class="hljs-keyword">else</span> {
+        site.fasta = <span class="hljs-keyword">new</span> Fasta(body);
+        site.sequence = site.fasta.body.slice(sequenceStart, sequenceEnd);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>If searching on the reverse strand, get the reverse compliment of the sequence.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (site.direction === <span class="hljs-string">'r'</span>) {
+          site.sequence = site.sequence
+            .split(<span class="hljs-string">''</span>).reverse().join(<span class="hljs-string">''</span>)
+            .replace(<span class="hljs-regexp">/A/g</span>, <span class="hljs-string">'t'</span>)
+            .replace(<span class="hljs-regexp">/C/g</span>, <span class="hljs-string">'g'</span>)
+            .replace(<span class="hljs-regexp">/G/g</span>, <span class="hljs-string">'c'</span>)
+            .replace(<span class="hljs-regexp">/T/g</span>, <span class="hljs-string">'a'</span>)
+            .toUpperCase();
+        }
+
+        callback(<span class="hljs-literal">null</span>, site);
+      }
+    }
+  }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Get the <code>g</code>, <code>r</code> and <code>t</code> values from the transcript’s Ensembl summary HTML (see below) and add them to the <code>site</code> object. These are used to generate the FASTA file URL, which is derived by passing in the <code>site</code> object to a Handelbars template. Also, determine if the transcript is on the forward or reverse strand, setting the <code>site.direction</code> value as appropriate. If any of these values are undefined, throw an error.</p>
 
             </div>
             
@@ -158,11 +206,11 @@
         </li>
         
         
-        <li id="section-4">
+        <li id="section-6">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-4">&#182;</a>
+                <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
               <p>Get the transcript’s Ensembl summary with an HTTP request. The URL for this is derived by passing in the <code>site</code> object to a Handelbars template.</p>
 

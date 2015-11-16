@@ -165,10 +165,10 @@ command.parse(process.argv);</pre></div></div>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> (command.args.length &lt; <span class="hljs-number">1</span> ||
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> (command.sequenceLength &lt; <span class="hljs-number">1</span> ||
+    command.args.length &lt; <span class="hljs-number">1</span> ||
     !(command.sites !== <span class="hljs-literal">undefined</span> ||
-      (command.transcript !== <span class="hljs-literal">undefined</span> &amp;&amp;
-       command.position !== <span class="hljs-literal">undefined</span>))) {
+      (command.transcript !== <span class="hljs-literal">undefined</span> &amp;&amp; command.position !== <span class="hljs-literal">undefined</span>))) {
   command.help();
 }
 

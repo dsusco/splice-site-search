@@ -100,7 +100,7 @@ var
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Search each sequence data file for each sequence. If it’s found, write the it was found on to a matching reads file.</p>
+              <p>Search each sequence data file for a sequence. If it’s found, write the line it was found on to a matching reads file.</p>
 
             </div>
             
@@ -157,7 +157,7 @@ var
               <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Error: could not parse file %j.'</span>, command.sites);
             } <span class="hljs-keyword">else</span> {
               sites.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">forEachSite</span>(<span class="hljs-params">site</span>) </span>{
-                getSequence(site, getSequenceCallback);
+                getSequence(<span class="hljs-keyword">new</span> Site(site), getSequenceCallback);
               });
             }
           }

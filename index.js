@@ -11,7 +11,7 @@ var
   readsWriter = require('./lib/reads-writer'),
   Site = require('./lib/site');
 
-// Search each sequence data file for each sequence. If it's found, write the it was found on to a matching reads file.
+// Search each sequence data file for a sequence. If it's found, write the line it was found on to a matching reads file.
 function getSequenceCallback(error, site) {
   if (error) {
     console.log(error);
@@ -53,7 +53,7 @@ if (command.sites) {
               console.log('Error: could not parse file %j.', command.sites);
             } else {
               sites.forEach(function forEachSite(site) {
-                getSequence(site, getSequenceCallback);
+                getSequence(new Site(site), getSequenceCallback);
               });
             }
           }
