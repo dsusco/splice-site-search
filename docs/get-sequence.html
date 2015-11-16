@@ -141,6 +141,10 @@
       site.r = $(<span class="hljs-string">'#core_params input[name=r]'</span>).val();
       site.t = $(<span class="hljs-string">'#core_params input[name=t]'</span>).val();
 
+<span class="hljs-built_in">console</span>.log($(<span class="hljs-string">'#main .rhs'</span>).length);
+
+process.exit(<span class="hljs-number">1</span>);
+
       request(templates.export_fasta_url(site), exportFastaCallback);
     }
   }</pre></div></div>

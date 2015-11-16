@@ -18,7 +18,7 @@ command.args.forEach(function forEachFile(file) {
   // search it for the sequence found for each transcript at its given position.
   function getSequenceCallback(error, site) {
     if (error) {
-      console.log('Error: could not get sequence for transcript %j.', site.transcript);
+      console.log(error);
     } else {
       readline
         .createInterface({ input: fileReadStream  })
@@ -68,9 +68,9 @@ command.args.forEach(function forEachFile(file) {
           new Site(
             { file: file,
               position: command.position,
-              transcript: command.transcript },
-            getSequenceCallback
-          )
+              transcript: command.transcript }
+          ),
+          getSequenceCallback
         );
       }
     })
