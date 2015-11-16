@@ -21,6 +21,7 @@
     "csv-parse": "^1.0.0",
     "handlebars": "^4.0.4",
     "moment": "^2.10.6",
+    "node-extend": "^0.2.0",
     "request": "^2.65.0"
   },
   "devDependencies": {

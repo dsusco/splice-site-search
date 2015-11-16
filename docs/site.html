@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>reads-writer.js</title>
+  <title>site.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -63,7 +63,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>reads-writer.js</h1>
+                  <h1>site.js</h1>
               </div>
           </li>
         
@@ -80,13 +80,7 @@
             
             <div class="content"><div class='highlight'><pre><span class="hljs-pi">'use strict'</span>;
 
-<span class="hljs-keyword">var</span>
-  command = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./command'</span>),
-  events = <span class="hljs-built_in">require</span>(<span class="hljs-string">'events'</span>),
-  fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>),
-  path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'path'</span>),
-  readWriter = <span class="hljs-keyword">new</span> events.EventEmitter(),
-  templates = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./templates'</span>);</pre></div></div>
+<span class="hljs-keyword">var</span> moment = <span class="hljs-built_in">require</span>(<span class="hljs-string">'moment'</span>);</pre></div></div>
             
         </li>
         
@@ -97,25 +91,17 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Listen for <code>line</code> events on the module’s exports. For every one, append the given line to the appropriate file. For readability, the sequence that is being searched for is converted to lowercase in the line before it’s written to the file. The file name is derived by passing in the <code>site</code> object to a Handlebars template.</p>
+              <p>A Site object is constructed from command line options or each row from a potential splice sites file.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>readWriter.on(<span class="hljs-string">'line'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">onReadWriterLine</span>(<span class="hljs-params">site, line</span>) </span>{
-  fs.appendFile(
-    path.join(command.matchesDir, templates.matching_reads_filename(site)),
-    line.replace(site.sequence, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">lineReplaceSequence</span>(<span class="hljs-params">match</span>) </span>{
-      <span class="hljs-keyword">return</span> match.toLowerCase();
-    }) + <span class="hljs-string">'\n'</span>,
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">appendToMatchesFile</span>(<span class="hljs-params">error</span>) </span>{
-      <span class="hljs-keyword">if</span> (error) {
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Error: could not append to file %j.'</span>, error.path);
-      }
-    }
-  );
-});
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Site</span>(<span class="hljs-params">obj</span>) </span>{
+  <span class="hljs-keyword">this</span>.date = moment().format(<span class="hljs-string">'YYYYMMDDHHmmss'</span>);
+  <span class="hljs-keyword">this</span>.position = +obj.position;
+  <span class="hljs-keyword">this</span>.transcript = obj.transcript;
+}
 
-<span class="hljs-built_in">module</span>.exports = readWriter;</pre></div></div>
+<span class="hljs-built_in">module</span>.exports = Site;</pre></div></div>
             
         </li>
         

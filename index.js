@@ -3,18 +3,19 @@
 
 var
   command = require('./lib/command'),
+  extend = require('node-extend'),
   fs = require('fs'),
   getSequence = require('./lib/get-sequence'),
-  moment = require('moment'),
   parse = require('csv-parse'),
   readline = require('readline'),
-  readsWriter = require('./lib/reads-writer');
+  readsWriter = require('./lib/reads-writer'),
+  Site = require('./lib/site');
 
 // For each file given as an argument...
 command.args.forEach(function forEachFile(file) {
   var fileReadStream = fs.createReadStream(file);
 
-  // search it for the sequence found for the transcript at the given position.
+  // search it for the sequence found for each transcript at its given position.
   function getSequenceCallback(error, site) {
     if (error) {
       console.log('Error: could not get sequence for transcript %j.', site.transcript);
@@ -49,9 +50,7 @@ command.args.forEach(function forEachFile(file) {
                   }
 
                   sites.forEach(function forEachSite(site) {
-                    site.date = moment().format('YYYYMMDDHHmmss');
-                    site.file = file;
-                    site.position = +site.position;
+                    site = new Site(extend({}, { file: file }, site));
 
                     getSequence(site, getSequenceCallback);
                   });
@@ -66,11 +65,12 @@ command.args.forEach(function forEachFile(file) {
       } else {
         // If the `--transcript` and `--position` options are used, get the sequence for those and search each file for it.
         getSequence(
-          { date: moment().format('YYYYMMDDHHmmss'),
-            file: file,
-            position: command.position,
-            transcript: command.transcript },
-          getSequenceCallback
+          new Site(
+            { file: file,
+              position: command.position,
+              transcript: command.transcript },
+            getSequenceCallback
+          )
         );
       }
     })

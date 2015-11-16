@@ -45,6 +45,11 @@
                 </a>
               
                 
+                <a class="source" href="site.html">
+                  site.js
+                </a>
+              
+                
                 <a class="source" href="templates.html">
                   templates.js
                 </a>
@@ -78,12 +83,13 @@
 
 var
   command = require('./lib/command'),
+  extend = require('node-extend'),
   fs = require('fs'),
   getSequence = require('./lib/get-sequence'),
-  moment = require('moment'),
   parse = require('csv-parse'),
   readline = require('readline'),
-  readsWriter = require('./lib/reads-writer');</pre></div></div>
+  readsWriter = require('./lib/reads-writer'),
+  Site = require('./lib/site');</pre></div></div>
             
         </li>
         
@@ -110,7 +116,7 @@ var
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>search it for the sequence found for the transcript at the given position.</p>
+              <p>search it for the sequence found for each transcript at its given position.</p>
 
             </div>
             
@@ -174,9 +180,7 @@ var
                   }
 
                   sites.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">forEachSite</span>(<span class="hljs-params">site</span>) </span>{
-                    site.date = moment().format(<span class="hljs-string">'YYYYMMDDHHmmss'</span>);
-                    site.file = file;
-                    site.position = +site.position;
+                    site = <span class="hljs-keyword">new</span> Site(extend({}, { file: file }, site));
 
                     getSequence(site, getSequenceCallback);
                   });
@@ -204,11 +208,12 @@ var
             </div>
             
             <div class="content"><div class='highlight'><pre>        getSequence(
-          { date: moment().format(<span class="hljs-string">'YYYYMMDDHHmmss'</span>),
-            file: file,
-            position: command.position,
-            transcript: command.transcript },
-          getSequenceCallback
+          <span class="hljs-keyword">new</span> Site(
+            { file: file,
+              position: command.position,
+              transcript: command.transcript },
+            getSequenceCallback
+          )
         );
       }
     })
