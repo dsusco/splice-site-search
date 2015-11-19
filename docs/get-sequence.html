@@ -153,7 +153,11 @@
           .toUpperCase();
       }
 
-      callback(<span class="hljs-literal">null</span>, site);
+      <span class="hljs-keyword">if</span> (site.sequence.length &lt; command.sequenceLength) {
+        callback(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'sequence at position '</span> + site.position + <span class="hljs-string">' for transcript '</span> + site.transcript + <span class="hljs-string">' is less than the sequence length option ('</span> + command.sequenceLength + <span class="hljs-string">'). Aborting search.'</span>));
+      } <span class="hljs-keyword">else</span> {
+        callback(<span class="hljs-literal">null</span>, site);
+      }
     }
   }</pre></div></div>
             

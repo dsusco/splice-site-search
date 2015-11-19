@@ -106,7 +106,11 @@ var
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getSequenceCallback</span>(<span class="hljs-params">error, site</span>) </span>{
   <span class="hljs-keyword">if</span> (error) {
-    <span class="hljs-built_in">console</span>.log(error);
+    <span class="hljs-keyword">try</span> {
+      <span class="hljs-built_in">console</span>.log(error[<span class="hljs-number">0</span>]);
+    } <span class="hljs-keyword">catch</span> (ex) {
+      <span class="hljs-built_in">console</span>.log(error);
+    }
   } <span class="hljs-keyword">else</span> {
     command.args.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">forEachFile</span>(<span class="hljs-params">file</span>) </span>{
       <span class="hljs-keyword">var</span> fileReadStream = fs.createReadStream(file);
@@ -157,7 +161,11 @@ var
               <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Error: could not parse file %j.'</span>, command.sites);
             } <span class="hljs-keyword">else</span> {
               sites.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">forEachSite</span>(<span class="hljs-params">site</span>) </span>{
-                getSequence(<span class="hljs-keyword">new</span> Site(site), getSequenceCallback);
+                <span class="hljs-keyword">if</span> (site.position &lt; <span class="hljs-number">0</span>) {
+                  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Error: position for transcript %s is negative. Aborting search.'</span>, site.transcript);
+                } <span class="hljs-keyword">else</span> {
+                  getSequence(<span class="hljs-keyword">new</span> Site(site), getSequenceCallback);
+                }
               });
             }
           }
