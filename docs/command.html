@@ -83,7 +83,14 @@
 <span class="hljs-keyword">var</span>
   command = <span class="hljs-built_in">require</span>(<span class="hljs-string">'commander'</span>),
   path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'path'</span>),
-  pkg = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../package.json'</span>);</pre></div></div>
+  pkg = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../package.json'</span>);
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">errorMessage</span>(<span class="hljs-params">message</span>) </span>{
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'  error: %s'</span>, message);
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
+  process.exit(<span class="hljs-number">1</span>);
+}</pre></div></div>
             
         </li>
         
@@ -106,21 +113,33 @@
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">positionOption</span>(<span class="hljs-params">val</span>) </span>{
       val = <span class="hljs-built_in">parseInt</span>(val, <span class="hljs-number">10</span>);
 
-      <span class="hljs-keyword">return</span> <span class="hljs-built_in">isNaN</span>(val) ? <span class="hljs-number">0</span> : val;
+      <span class="hljs-keyword">if</span> (<span class="hljs-built_in">isNaN</span>(val) || val &lt; <span class="hljs-number">0</span>) {
+        errorMessage(<span class="hljs-string">'position must be 0 or a positive integer.'</span>);
+      }
+
+      <span class="hljs-keyword">return</span> val;
     })
   .option(<span class="hljs-string">'-s, --sites &lt;file&gt;'</span>, <span class="hljs-string">'potential splice sites file'</span>)
   .option(<span class="hljs-string">'-d, --site-delimiter &lt;delimiter&gt;'</span>, <span class="hljs-string">'potential splice sites file delimiter'</span>, <span class="hljs-built_in">String</span>, <span class="hljs-string">'\t'</span>)
   .option(<span class="hljs-string">'-o, --position-offset &lt;integer&gt;'</span>, <span class="hljs-string">"offset applied to a site's position"</span>,
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">positionOffsetOption</span>(<span class="hljs-params">val, def</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">positionOffsetOption</span>(<span class="hljs-params">val</span>) </span>{
       val = <span class="hljs-built_in">parseInt</span>(val, <span class="hljs-number">10</span>);
 
-      <span class="hljs-keyword">return</span> <span class="hljs-built_in">isNaN</span>(val) ? def : val;
+      <span class="hljs-keyword">if</span> (<span class="hljs-built_in">isNaN</span>(val)) {
+        errorMessage(<span class="hljs-string">'position offset must be an integer.'</span>);
+      }
+
+      <span class="hljs-keyword">return</span> val;
     }, <span class="hljs-number">2</span>)
   .option(<span class="hljs-string">'-l, --sequence-length &lt;integer&gt;'</span>, <span class="hljs-string">"length of sequence from a site's position"</span>,
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sequenceLengthOption</span>(<span class="hljs-params">val, def</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sequenceLengthOption</span>(<span class="hljs-params">val</span>) </span>{
       val = <span class="hljs-built_in">parseInt</span>(val, <span class="hljs-number">10</span>);
 
-      <span class="hljs-keyword">return</span> <span class="hljs-built_in">isNaN</span>(val) ? def : val;
+      <span class="hljs-keyword">if</span> (<span class="hljs-built_in">isNaN</span>(val) || val &lt; <span class="hljs-number">1</span>) {
+        errorMessage(<span class="hljs-string">'sequence length must be a positive integer.'</span>);
+      }
+
+      <span class="hljs-keyword">return</span> val;
     }, <span class="hljs-number">15</span>)
   .option(<span class="hljs-string">'-m, --matches-dir &lt;directory&gt;'</span>, <span class="hljs-string">'directory to write matching reads files'</span>, path.normalize, <span class="hljs-string">'.'</span>);</pre></div></div>
             
@@ -165,8 +184,7 @@ command.parse(process.argv);</pre></div></div>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> (command.sequenceLength &lt; <span class="hljs-number">1</span> ||
-    command.args.length &lt; <span class="hljs-number">1</span> ||
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> (command.args.length &lt; <span class="hljs-number">1</span> ||
     !(command.sites !== <span class="hljs-literal">undefined</span> ||
       (command.transcript !== <span class="hljs-literal">undefined</span> &amp;&amp; command.position !== <span class="hljs-literal">undefined</span>))) {
   command.help();

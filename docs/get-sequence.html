@@ -106,9 +106,7 @@
     <span class="hljs-keyword">if</span> (error) {
       callback(error);
     } <span class="hljs-keyword">else</span> {
-      <span class="hljs-keyword">var</span>
-        sequenceStart = site.position + command.positionOffset,
-        sequenceEnd = sequenceStart + command.sequenceLength;</pre></div></div>
+      <span class="hljs-keyword">var</span> sequenceStart = site.position + command.positionOffset;</pre></div></div>
             
         </li>
         
@@ -124,17 +122,13 @@
             </div>
             
             <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (site.direction === <span class="hljs-string">'r'</span>) {
-        sequenceEnd = site.position - command.positionOffset;
-        sequenceStart = sequenceEnd - command.sequenceLength;
+        sequenceStart = site.position - command.positionOffset - command.sequenceLength;
       }
 
       <span class="hljs-keyword">if</span> (sequenceStart &lt; <span class="hljs-number">0</span>) { sequenceStart = <span class="hljs-number">0</span>; }
 
-      <span class="hljs-keyword">if</span> (sequenceStart &gt;= sequenceEnd) {
-        callback(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Cannot determine a sequence with a negative length. Check the position, position offset and sequence length options.'</span>));
-      } <span class="hljs-keyword">else</span> {
-        site.fasta = <span class="hljs-keyword">new</span> Fasta(body);
-        site.sequence = site.fasta.body.slice(sequenceStart, sequenceEnd);</pre></div></div>
+      site.fasta = <span class="hljs-keyword">new</span> Fasta(body);
+      site.sequence = site.fasta.body.substr(sequenceStart, command.sequenceLength);</pre></div></div>
             
         </li>
         
@@ -149,18 +143,17 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (site.direction === <span class="hljs-string">'r'</span>) {
-          site.sequence = site.sequence
-            .split(<span class="hljs-string">''</span>).reverse().join(<span class="hljs-string">''</span>)
-            .replace(<span class="hljs-regexp">/A/g</span>, <span class="hljs-string">'t'</span>)
-            .replace(<span class="hljs-regexp">/C/g</span>, <span class="hljs-string">'g'</span>)
-            .replace(<span class="hljs-regexp">/G/g</span>, <span class="hljs-string">'c'</span>)
-            .replace(<span class="hljs-regexp">/T/g</span>, <span class="hljs-string">'a'</span>)
-            .toUpperCase();
-        }
-
-        callback(<span class="hljs-literal">null</span>, site);
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (site.direction === <span class="hljs-string">'r'</span>) {
+        site.sequence = site.sequence
+          .split(<span class="hljs-string">''</span>).reverse().join(<span class="hljs-string">''</span>)
+          .replace(<span class="hljs-regexp">/A/g</span>, <span class="hljs-string">'t'</span>)
+          .replace(<span class="hljs-regexp">/C/g</span>, <span class="hljs-string">'g'</span>)
+          .replace(<span class="hljs-regexp">/G/g</span>, <span class="hljs-string">'c'</span>)
+          .replace(<span class="hljs-regexp">/T/g</span>, <span class="hljs-string">'a'</span>)
+          .toUpperCase();
       }
+
+      callback(<span class="hljs-literal">null</span>, site);
     }
   }</pre></div></div>
             
