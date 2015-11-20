@@ -14,11 +14,7 @@ var
 // Search each sequence data file for a sequence. If it's found, write the line it was found on to a matching reads file.
 function getSequenceCallback(error, site) {
   if (error) {
-    try {
-      console.log(error[0]);
-    } catch (ex) {
-      console.log(error);
-    }
+    console.log(error);
   } else {
     command.args.forEach(function forEachFile(file) {
       var fileReadStream = fs.createReadStream(file);
