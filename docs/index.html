@@ -30,6 +30,11 @@
                 </a>
               
                 
+                <a class="source" href="debug.html">
+                  debug.js
+                </a>
+              
+                
                 <a class="source" href="fasta.html">
                   fasta.js
                 </a>
@@ -83,6 +88,7 @@
 
 var
   command = require('./lib/command'),
+  debug = require('./lib/debug'),
   fs = require('fs'),
   getSequence = require('./lib/get-sequence'),
   parse = require('csv-parse'),
@@ -106,16 +112,14 @@ var
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getSequenceCallback</span>(<span class="hljs-params">error, site</span>) </span>{
   <span class="hljs-keyword">if</span> (error) {
-    <span class="hljs-keyword">try</span> {
-      <span class="hljs-built_in">console</span>.log(error[<span class="hljs-number">0</span>]);
-    } <span class="hljs-keyword">catch</span> (ex) {
-      <span class="hljs-built_in">console</span>.log(error);
-    }
+    <span class="hljs-built_in">console</span>.log(error);
   } <span class="hljs-keyword">else</span> {
     command.args.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">forEachFile</span>(<span class="hljs-params">file</span>) </span>{
       <span class="hljs-keyword">var</span> fileReadStream = fs.createReadStream(file);
 
       site.file = path.basename(file);
+
+      debug(<span class="hljs-string">'Looking for sequence %s in %j (transcript %s, position %d).'</span>, site.sequence, file, site.transcript, site.position);
 
       fileReadStream
         .on(<span class="hljs-string">'readable'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">onReadFile</span>(<span class="hljs-params"></span>) </span>{
@@ -150,6 +154,8 @@ var
             <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> (command.sites) {
   <span class="hljs-keyword">var</span> sitesReadStream = fs.createReadStream(command.sites);
 
+  debug(<span class="hljs-string">'Running with potential splice sites file %j.'</span>, command.sites);
+
   sitesReadStream
     .on(<span class="hljs-string">'readable'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">onReadSites</span>(<span class="hljs-params"></span>) </span>{
       sitesReadStream.pipe(
@@ -164,6 +170,7 @@ var
                 <span class="hljs-keyword">if</span> (site.position &lt; <span class="hljs-number">0</span>) {
                   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Error: position for transcript %s is negative. Aborting search.'</span>, site.transcript);
                 } <span class="hljs-keyword">else</span> {
+                  debug(<span class="hljs-string">'Looking for the sequence at position %d of transcript %s.'</span>, site.position, site.transcript);
                   getSequence(<span class="hljs-keyword">new</span> Site(site), getSequenceCallback);
                 }
               });
@@ -190,7 +197,9 @@ var
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  getSequence(
+            <div class="content"><div class='highlight'><pre>  debug(<span class="hljs-string">'Looking for the sequence at position %d of transcript %s.'</span>, command.position, command.transcript);
+
+  getSequence(
     <span class="hljs-keyword">new</span> Site(
       { position: command.position,
         transcript: command.transcript }

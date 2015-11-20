@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>site.js</title>
+  <title>debug.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -68,7 +68,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>site.js</h1>
+                  <h1>debug.js</h1>
               </div>
           </li>
         
@@ -85,7 +85,7 @@
             
             <div class="content"><div class='highlight'><pre><span class="hljs-pi">'use strict'</span>;
 
-<span class="hljs-keyword">var</span> moment = <span class="hljs-built_in">require</span>(<span class="hljs-string">'moment'</span>);</pre></div></div>
+<span class="hljs-keyword">var</span> command = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./command'</span>);</pre></div></div>
             
         </li>
         
@@ -96,17 +96,18 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>A Site object is constructed from command line options or each row from a potential splice sites file.</p>
+              <p>Log messages if the <code>--verbose</code> option is given.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Site</span>(<span class="hljs-params">obj</span>) </span>{
-  <span class="hljs-keyword">this</span>.date = moment().format(<span class="hljs-string">'YYYYMMDDHHmmss'</span>);
-  <span class="hljs-keyword">this</span>.position = +obj.position;
-  <span class="hljs-keyword">this</span>.transcript = obj.transcript;
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">debug</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">if</span> (command.verbose) {
+    <span class="hljs-built_in">console</span>.log.apply(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">arguments</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
+  }
 }
 
-<span class="hljs-built_in">module</span>.exports = Site;</pre></div></div>
+<span class="hljs-built_in">module</span>.exports = debug;</pre></div></div>
             
         </li>
         

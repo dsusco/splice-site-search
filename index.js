@@ -3,6 +3,7 @@
 
 var
   command = require('./lib/command'),
+  debug = require('./lib/debug'),
   fs = require('fs'),
   getSequence = require('./lib/get-sequence'),
   parse = require('csv-parse'),
@@ -20,6 +21,8 @@ function getSequenceCallback(error, site) {
       var fileReadStream = fs.createReadStream(file);
 
       site.file = path.basename(file);
+
+      debug('Looking for sequence %s in %j (transcript %s, position %d).', site.sequence, file, site.transcript, site.position);
 
       fileReadStream
         .on('readable', function onReadFile() {
@@ -42,6 +45,8 @@ function getSequenceCallback(error, site) {
 if (command.sites) {
   var sitesReadStream = fs.createReadStream(command.sites);
 
+  debug('Running with potential splice sites file %j.', command.sites);
+
   sitesReadStream
     .on('readable', function onReadSites() {
       sitesReadStream.pipe(
@@ -56,6 +61,7 @@ if (command.sites) {
                 if (site.position < 0) {
                   console.log('Error: position for transcript %s is negative. Aborting search.', site.transcript);
                 } else {
+                  debug('Looking for the sequence at position %d of transcript %s.', site.position, site.transcript);
                   getSequence(new Site(site), getSequenceCallback);
                 }
               });
@@ -69,6 +75,8 @@ if (command.sites) {
     });
 } else {
   // If the `--transcript` and `--position` options are used, get the sequence for the transcript at the given position.
+  debug('Looking for the sequence at position %d of transcript %s.', command.position, command.transcript);
+
   getSequence(
     new Site(
       { position: command.position,

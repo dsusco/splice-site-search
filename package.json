@@ -1,6 +1,6 @@
 {
   "name": "splice-site-search",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Searches sequence data files for potential splice sites.",
   "homepage": "https://github.com/dsusco/splice-site-search",
   "bugs": "https://github.com/dsusco/splice-site-search/issues",
