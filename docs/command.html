@@ -147,6 +147,16 @@
 
       <span class="hljs-keyword">return</span> val;
     }, <span class="hljs-number">15</span>)
+  .option(<span class="hljs-string">'-r, --retry-limit &lt;integer&gt;'</span>, <span class="hljs-string">'number of times to retry HTTP requests'</span>,
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">retryLimitOption</span>(<span class="hljs-params">val</span>) </span>{
+      val = <span class="hljs-built_in">parseInt</span>(val, <span class="hljs-number">10</span>);
+
+      <span class="hljs-keyword">if</span> (<span class="hljs-built_in">isNaN</span>(val) || val &lt; <span class="hljs-number">1</span>) {
+        errorMessage(<span class="hljs-string">'retry limit must be a positive integer.'</span>);
+      }
+
+      <span class="hljs-keyword">return</span> val;
+    }, <span class="hljs-number">50</span>)
   .option(<span class="hljs-string">'-m, --matches-dir &lt;directory&gt;'</span>, <span class="hljs-string">'directory to write matching reads files'</span>, path.normalize, <span class="hljs-string">'.'</span>);</pre></div></div>
             
         </li>

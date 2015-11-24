@@ -110,7 +110,22 @@
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">exportFastaCallback</span>(<span class="hljs-params">error, response, body</span>) </span>{
     <span class="hljs-keyword">if</span> (error) {
-      callback(error);
+      <span class="hljs-keyword">try</span> {
+        <span class="hljs-keyword">if</span> (site.retry &lt; command.retryLimit &amp;&amp;
+            (error.code === <span class="hljs-string">'ECONNRESET'</span> || error.code === <span class="hljs-string">'HPE_INVALID_HEADER_TOKEN'</span>)) {
+          site.retry += <span class="hljs-number">1</span>;
+
+          debug(<span class="hljs-string">'Getting FASTA sequence for transcript %s: %s'</span>, site.transcript, templates.export_fasta_url(site));
+
+          request(templates.export_fasta_url(site), exportFastaCallback);
+        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (site.retry &gt;= command.retryLimit) {
+          callback(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'could get get FASTA for transcript '</span> + site.transcript + <span class="hljs-string">' in '</span> + command.retryLimit + <span class="hljs-string">' tries. Aborting search.'</span>));
+        } <span class="hljs-keyword">else</span> {
+          callback(error);
+        }
+      } <span class="hljs-keyword">catch</span> (e) {
+        callback(error);
+      }
     } <span class="hljs-keyword">else</span> {
       <span class="hljs-keyword">var</span> sequenceStart = site.position + command.positionOffset;</pre></div></div>
             
@@ -131,12 +146,13 @@
         sequenceStart = site.position - command.positionOffset - command.sequenceLength;
       }
 
-      <span class="hljs-keyword">if</span> (sequenceStart &lt; <span class="hljs-number">0</span>) { sequenceStart = <span class="hljs-number">0</span>; }
+      <span class="hljs-keyword">if</span> (sequenceStart &lt; <span class="hljs-number">0</span>) {
+        callback(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'sequence at position '</span> + site.position + <span class="hljs-string">' for transcript '</span> + site.transcript + <span class="hljs-string">' is on the reverse strand and would start at position '</span> + sequenceStart + <span class="hljs-string">'. Aborting search.'</span>));
+      } <span class="hljs-keyword">else</span> {
+        site.fasta = <span class="hljs-keyword">new</span> Fasta(body);
+        site.sequence = site.fasta.body.substr(sequenceStart, command.sequenceLength);
 
-      site.fasta = <span class="hljs-keyword">new</span> Fasta(body);
-      site.sequence = site.fasta.body.substr(sequenceStart, command.sequenceLength);
-
-      debug(<span class="hljs-string">'Found the sequence at position %d of transcript %s: %s'</span>, site.position, site.transcript, site.sequence);</pre></div></div>
+        debug(<span class="hljs-string">'Found the sequence at position %d of transcript %s: %s'</span>, site.position, site.transcript, site.sequence);</pre></div></div>
             
         </li>
         
@@ -151,22 +167,23 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (site.direction === <span class="hljs-string">'r'</span>) {
-        site.sequence = site.sequence
-          .split(<span class="hljs-string">''</span>).reverse().join(<span class="hljs-string">''</span>)
-          .replace(<span class="hljs-regexp">/A/g</span>, <span class="hljs-string">'t'</span>)
-          .replace(<span class="hljs-regexp">/C/g</span>, <span class="hljs-string">'g'</span>)
-          .replace(<span class="hljs-regexp">/G/g</span>, <span class="hljs-string">'c'</span>)
-          .replace(<span class="hljs-regexp">/T/g</span>, <span class="hljs-string">'a'</span>)
-          .toUpperCase();
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (site.direction === <span class="hljs-string">'r'</span>) {
+          site.sequence = site.sequence
+            .split(<span class="hljs-string">''</span>).reverse().join(<span class="hljs-string">''</span>)
+            .replace(<span class="hljs-regexp">/A/g</span>, <span class="hljs-string">'t'</span>)
+            .replace(<span class="hljs-regexp">/C/g</span>, <span class="hljs-string">'g'</span>)
+            .replace(<span class="hljs-regexp">/G/g</span>, <span class="hljs-string">'c'</span>)
+            .replace(<span class="hljs-regexp">/T/g</span>, <span class="hljs-string">'a'</span>)
+            .toUpperCase();
 
-        debug(<span class="hljs-string">'The sequence at position %d of transcript %s is on the reverse strand, taking the reverse compliment: %s'</span>, site.position, site.transcript, site.sequence);
-      }
+          debug(<span class="hljs-string">'The sequence at position %d of transcript %s is on the reverse strand, taking the reverse compliment: %s'</span>, site.position, site.transcript, site.sequence);
+        }
 
-      <span class="hljs-keyword">if</span> (site.sequence.length &lt; command.sequenceLength) {
-        callback(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'sequence at position '</span> + site.position + <span class="hljs-string">' for transcript '</span> + site.transcript + <span class="hljs-string">' is less than the sequence length option ('</span> + command.sequenceLength + <span class="hljs-string">'). Aborting search.'</span>));
-      } <span class="hljs-keyword">else</span> {
-        callback(<span class="hljs-literal">null</span>, site);
+        <span class="hljs-keyword">if</span> (site.sequence.length &lt; command.sequenceLength) {
+          callback(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'sequence at position '</span> + site.position + <span class="hljs-string">' for transcript '</span> + site.transcript + <span class="hljs-string">' is less than the sequence length option ('</span> + command.sequenceLength + <span class="hljs-string">'). Aborting search.'</span>));
+        } <span class="hljs-keyword">else</span> {
+          callback(<span class="hljs-literal">null</span>, site);
+        }
       }
     }
   }</pre></div></div>
@@ -186,7 +203,22 @@
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">transcriptSummaryCallback</span>(<span class="hljs-params">error, response, body</span>) </span>{
     <span class="hljs-keyword">if</span> (error) {
-      callback(error, <span class="hljs-literal">null</span>);
+      <span class="hljs-keyword">try</span> {
+        <span class="hljs-keyword">if</span> (site.retry &lt; command.retryLimit &amp;&amp;
+            (error.code === <span class="hljs-string">'ECONNRESET'</span> || error.code === <span class="hljs-string">'HPE_INVALID_HEADER_TOKEN'</span>)) {
+          site.retry += <span class="hljs-number">1</span>;
+
+          debug(<span class="hljs-string">'Getting transcript summary for transcript %s: %s'</span>, site.transcript, templates.transcript_summary_url(site));
+
+          request(templates.transcript_summary_url(site), transcriptSummaryCallback);
+        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (site.retry &gt;= command.retryLimit) {
+          callback(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'could get get summary for transcript '</span> + site.transcript + <span class="hljs-string">' in '</span> + command.retryLimit + <span class="hljs-string">' tries. Aborting search.'</span>));
+        } <span class="hljs-keyword">else</span> {
+          callback(error);
+        }
+      } <span class="hljs-keyword">catch</span> (e) {
+        callback(error);
+      }
     } <span class="hljs-keyword">else</span> {
       <span class="hljs-keyword">var</span> $ = cheerio.load(body);
 
